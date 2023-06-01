@@ -446,4 +446,554 @@ If another `touchend` event is triggered before the timer expires (i.e., within 
 This approach allows you to handle both single-taps and double-taps on mobile devices.
 
 
-web worker
+## Inheritance in Javascript
+
+In JavaScript, you can use the `prototype` property of a function to implement inheritance between objects. Here's an example that demonstrates how to use the `prototype` property to implement inheritance:
+
+```javascript
+function Person(firstName, lastName) {
+  this.firstName = firstName;
+  this.lastName = lastName;
+}
+
+Person.prototype.fullName = function() {
+  return this.firstName + ' ' + this.lastName;
+}
+
+function Student(firstName, lastName, grade) {
+  Person.call(this, firstName, lastName);
+  this.grade = grade;
+}
+
+Student.prototype = Object.create(Person.prototype);
+Student.prototype.constructor = Student;
+
+Student.prototype.reportCard = function() {
+  return this.fullName() + ' is in grade ' + this.grade;
+}
+
+var student1 = new Student('John', 'Doe', 'A');
+var student2 = new Student('Jane', 'Doe', 'B');
+
+console.log(student1.reportCard()); // John Doe is in grade A
+console.log(student2.reportCard()); // Jane Doe is in grade B
+```
+
+In this example, we define a `Person` function that takes two arguments: `firstName` and `lastName`. We then use the `prototype` property of the `Person` function to add a `fullName` method to all objects created using the `Person` function as a constructor.
+
+Next, we define a `Student` function that takes three arguments: `firstName`, `lastName`, and `grade`. We use the `call` method to call the `Person` function with the `this` value set to the new `Student` object and pass in the `firstName` and `lastName` arguments. This sets the `firstName` and `lastName` properties of the new `Student` object.
+
+We then set the `prototype` property of the `Student` function to a new object created using the `Object.create` method with the `Person.prototype` as its prototype. This sets up the prototype chain so that objects created using the `Student` function as a constructor will inherit from objects created using the `Person` function as a constructor.
+
+We also set the `constructor` property of the new prototype object to the `Student` function so that it correctly identifies objects created using the `Student` function as instances of the `Student` function.
+
+
+## Do Arrow Function have prototype
+
+No, arrow functions do not have a `prototype` property. Arrow functions are a special type of function that is designed to be used for non-method functions and therefore do not have a `prototype` property. Here's an example that demonstrates this:
+
+```javascript
+const myArrowFunction = () => {};
+
+console.log(myArrowFunction.prototype); // undefined
+```
+
+In this example, we define an arrow function `myArrowFunction` using the `=>` syntax. When we log the `prototype` property of the `myArrowFunction`, it shows that it is `undefined`.
+
+I hope this helps clarify that arrow functions do not have a `prototype` property. Is there anything else you would like to know?
+
+## Difference between constructor,__proto__ and prototype
+
+`constructor`, `__proto__`, and `prototype` are all related concepts in JavaScript, but they serve different purposes.
+
+- `constructor`: The `constructor` property is a reference to the function that created an object's prototype. For example, if you create an object using the `new` keyword with a function as a constructor, the `constructor` property of the new object will be a reference to that function.
+
+```javascript
+function Person(firstName, lastName) {
+  this.firstName = firstName;
+  this.lastName = lastName;
+}
+
+var person1 = new Person('John', 'Doe');
+
+console.log(person1.constructor); // [Function: Person]
+```
+
+- `__proto__`: The `__proto__` property is an internal property of an object that points to its prototype. It is used in the lookup chain to resolve methods and properties. The value of the `__proto__` property is the same as the value of the `prototype` property of the function that created the object.
+
+```javascript
+function Person(firstName, lastName) {
+  this.firstName = firstName;
+  this.lastName = lastName;
+}
+
+var person1 = new Person('John', 'Doe');
+
+console.log(person1.__proto__); // Person {}
+console.log(person1.__proto__ === Person.prototype); // true
+```
+
+- `prototype`: The `prototype` property is a property of a function object. It is the prototype of objects constructed by that function. You can use the `prototype` property to add properties and methods to objects created using a function as a constructor.
+
+```javascript
+function Person(firstName, lastName) {
+  this.firstName = firstName;
+  this.lastName = lastName;
+}
+
+Person.prototype.fullName = function() {
+  return this.firstName + ' ' + this.lastName;
+}
+
+var person1 = new Person('John', 'Doe');
+var person2 = new Person('Jane', 'Doe');
+
+console.log(person1.fullName()); // John Doe
+console.log(person2.fullName()); // Jane Doe
+```
+
+I hope this helps clarify the differences between `constructor`, `__proto__`, and `prototype`. Is there anything else you would like to know?
+
+## difference betwwen creating object using function constructor vs class constructor
+
+In JavaScript, you can create objects using either a function constructor or a class constructor. Both approaches allow you to define a template for creating objects with specific properties and methods. Here's an example that demonstrates how to create objects using both a function constructor and a class constructor:
+
+```javascript
+// Using a function constructor
+function Person(firstName, lastName) {
+  this.firstName = firstName;
+  this.lastName = lastName;
+}
+
+Person.prototype.fullName = function() {
+  return this.firstName + ' ' + this.lastName;
+}
+
+var person1 = new Person('John', 'Doe');
+
+// Using a class constructor
+class Person {
+  constructor(firstName, lastName) {
+    this.firstName = firstName;
+    this.lastName = lastName;
+  }
+
+  fullName() {
+    return this.firstName + ' ' + this.lastName;
+  }
+}
+
+var person2 = new Person('Jane', 'Doe');
+```
+
+In this example, we define a `Person` function constructor and a `Person` class constructor. Both constructors take two arguments: `firstName` and `lastName`. We use the `prototype` property of the `Person` function constructor to add a `fullName` method to all objects created using the `Person` function as a constructor. In the `Person` class constructor, we define the `fullName` method in the body of the class.
+
+When we create new `Person` objects using the `new` keyword with either the `Person` function constructor or the `Person` class constructor, they both have access to the `fullName` method.
+
+The main difference between using a function constructor and a class constructor is the syntax. The class syntax provides a more concise and readable way to define constructors and methods. However, under the hood, both approaches work in essentially the same way.
+
+I hope this helps clarify the difference between creating objects using a function constructor vs. a class constructor. Is there anything else you would like to know?
+
+## do function prototype has by default constructor
+
+Yes, the `prototype` property of a function object has a `constructor` property by default. The `constructor` property of the `prototype` object is a reference to the function that created the prototype. Here's an example that demonstrates this:
+
+```javascript
+function Person(firstName, lastName) {
+  this.firstName = firstName;
+  this.lastName = lastName;
+}
+
+console.log(Person.prototype.constructor); // [Function: Person]
+```
+
+In this example, we define a `Person` function. When we log the `constructor` property of the `Person.prototype` object, it shows that it is a reference to the `Person` function.
+
+The `constructor` property of the `prototype` object is used to identify the function that created an object's prototype. When you create an object using the `new` keyword with a function as a constructor, the `constructor` property of the new object's prototype will be set to the function that created it.
+
+I hope this helps clarify that the `prototype` property of a function object has a `constructor` property by default. Is there anything else you would like to know?
+
+## Abort previous hit API call in javascript
+
+One way to prevent the scenario you described is to cancel the previous API call when the user navigates back to the list page. This can be done using an API that supports request cancellation, such as the `AbortController` API in modern browsers.
+
+Here's an example that demonstrates how to use the `AbortController` API to cancel an API call:
+
+```javascript
+let controller = new AbortController();
+let signal = controller.signal;
+
+fetch('/api/details', { signal })
+  .then(response => response.json())
+  .then(data => {
+    // handle data
+  })
+  .catch(error => {
+    if (error.name === 'AbortError') {
+      // request was cancelled
+    } else {
+      // handle other errors
+    }
+  });
+
+// cancel the request
+controller.abort();
+```
+
+In this example, we create a new `AbortController` object and use its `signal` property to pass a signal to the `fetch` function. This allows us to cancel the request by calling the `abort` method on the `AbortController` object.
+
+When the user navigates back to the list page, you can call the `abort` method on the `AbortController` object to cancel the previous API call. This will prevent the previous API call from updating your list item.
+
+## There is a page with n number of images and you are scrolling on that page and it keeps loading the data with images. How you will handle the performance issue over here.
+
+There are several techniques you can use to improve the performance of a page with a large number of images that are loaded as the user scrolls:
+
+1. **Lazy loading**: Instead of loading all the images at once, you can use lazy loading to only load the images that are currently visible in the user's viewport. As the user scrolls down the page, more images are loaded on demand. This can significantly reduce the initial load time of the page and improve its overall performance.
+
+2. **Image optimization**: You can optimize the images on your page to reduce their file size without sacrificing quality. This can be done using image compression techniques or by choosing the right image format for each image. Smaller image files will load faster and consume less bandwidth.
+
+3. **Virtualization**: If you have a very large number of images on your page, you can use virtualization techniques to only render the images that are currently visible in the user's viewport. This can significantly reduce the amount of memory and processing power required to display the page.
+
+4. **Debounce scroll events**: If you are loading more images as the user scrolls down the page, you can use a technique called debouncing to limit the number of times your scroll event handler is called. This can prevent your page from making too many API calls or performing too many calculations while the user is scrolling.
+
+I hope these suggestions help improve the performance of your page with a large number of images. Is there anything else you would like to know?
+
+## Load Images/data on scroll
+
+Implementing virtualization using plain JavaScript can be quite complex and requires a good understanding of the DOM and how to manipulate it efficiently. Here's an example that demonstrates a simple implementation of virtualization using plain JavaScript:
+
+```html
+<div id="container" style="height: 300px; overflow: auto;">
+  <div id="list" style="height: 2000px;"></div>
+</div>
+
+<script>
+  const images = [
+    // array of image URLs
+  ];
+
+  const container = document.querySelector('#container');
+  const list = document.querySelector('#list');
+
+  function renderImages() {
+    const scrollTop = container.scrollTop;
+    const visibleStartIndex = Math.floor(scrollTop / 20);
+    const visibleEndIndex = Math.min(visibleStartIndex + 15, images.length - 1);
+
+    list.innerHTML = '';
+
+    for (let i = visibleStartIndex; i <= visibleEndIndex; i++) {
+      const img = document.createElement('img');
+      img.src = images[i];
+      list.appendChild(img);
+    }
+  }
+
+  container.addEventListener('scroll', renderImages);
+</script>
+```
+
+In this example, we have a `container` element with a fixed height and an `overflow` property set to `auto`. This creates a scrollable container for our virtualized list of images. Inside the `container` element, we have a `list` element with a fixed height that is large enough to accommodate all the images in our `images` array.
+
+We define a `renderImages` function that calculates the range of visible images based on the current scroll position of the `container` element. The function then clears the contents of the `list` element and appends new `img` elements for each visible image.
+
+We add a `scroll` event listener to the `container` element that calls the `renderImages` function whenever the user scrolls the container. This causes the visible images to be updated as the user scrolls down the list.
+
+I hope this example helps demonstrate how to implement virtualization using plain JavaScript. Is there anything else you would like to know?
+
+## Custom Debounce Function
+
+Debouncing and throttling are two techniques that can be used in JavaScript to limit the rate at which a function is called. They are often used to improve the performance of event handlers that are called frequently, such as scroll or resize handlers.
+
+- **Debouncing**: Debouncing is a technique that allows you to delay the execution of a function until a certain amount of time has passed since the last time the function was called. This can be useful for events that are triggered frequently, such as a user typing in an input field. By debouncing the event handler, you can wait until the user has finished typing before performing an expensive operation, such as making an API call.
+
+Here's an example that demonstrates how to implement debouncing using plain JavaScript:
+
+```javascript
+function debounce(func, wait) {
+  let timeout;
+
+  return function() {
+    const context = this;
+    const args = arguments;
+
+    clearTimeout(timeout);
+
+    timeout = setTimeout(function() {
+      func.apply(context, args);
+    }, wait);
+  };
+}
+
+const input = document.createElement('input');
+document.body.append(input);
+const debouncedHandler = debounce(function(event) {
+  // handle input event
+}, 250);
+
+input.addEventListener('input', debouncedHandler);
+
+//If you want to bind this then you can do this as well below
+
+const debouncedHandler = debounce(function(event) {
+  console.log(this.name, 'Custom this object binding')
+}, 250);
+const debounceThis = debouncedHandler.bind({name: 'Sahil Jalan'});
+input.addEventListener('input', debounceThis);
+```
+
+In this example, we define a `debounce` function that takes two arguments: `func` and `wait`. The `func` argument is the function to be debounced and the `wait` argument is the amount of time to wait before calling the function. The `debounce` function returns a new function that wraps the original function and delays its execution until the specified amount of time has passed since the last time it was called.
+
+We use the `debounce` function to create a debounced version of our input event handler. When we add the debounced handler as an event listener for the `input` event on our `input` element, it will only be called once every 250 milliseconds, even if the user is typing quickly.
+
+- **Throttling**: Throttling is a technique that allows you to limit the rate at which a function is called by only allowing it to be called once every specified interval. This can be useful for events that are triggered frequently and continuously, such as scrolling or resizing. By throttling the event handler, you can ensure that it is only called once every specified interval, even if the event is being triggered more frequently.
+
+Here's an example that demonstrates how to implement throttling using plain JavaScript:
+
+```javascript
+function throttle(func, limit) {
+  let inThrottle;
+
+  return function() {
+    const context = this;
+    const args = arguments;
+
+    if (!inThrottle) {
+      func.apply(context, args);
+      inThrottle = true;
+
+      setTimeout(function() {
+        inThrottle = false;
+      }, limit);
+    }
+  };
+}
+
+const container = document.createElement('div');
+document.body.append(container);
+const throttledHandler = throttle(function(event) {
+  // handle scroll event
+}, 250);
+
+container.addEventListener('scroll', throttledHandler);
+```
+
+In this example, we define a `throttle` function that takes two arguments: `func` and `limit`. The `func` argument is the function to be throttled and the `limit` argument is the minimum amount of time that must pass between calls to the function. The `throttle` function returns a new function that wraps the original function and only allows it to be called once every specified interval.
+
+We use the `throttle` function to create a throttled version of our scroll event handler. When we add the throttled handler as an event listener for the `scroll` event on our `container` element, it will only be called once every 250 milliseconds, even if the user is scrolling quickly.
+
+I hope this helps clarify the difference between debouncing and throttling in JavaScript.
+
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+# Service Worker
+## difference between web worker and servcie worker in javascript
+
+The key difference between a **Service Worker** and a **Web Worker** is that a Service Worker is intended to intercept network requests that would typically be sent directly to a remote service and handle the event such that the front-end client code can continue working even when the network is unavailable. Service workers allow you to intercept network requests (via the fetch event) and to listen for Push API events in the background (via the push event).
+
+## use cases for service worker with example
+
+Service workers are intended to be used for things such as background data synchronization, responding to resource requests from other origins, and receiving centralized updates to expensive-to-calculate data such as geolocation or gyroscope, so multiple pages can make use of one set of data. Service workers can also be used to manage network requests by intercepting them and returning a response from the cache instead.
+
+One example of a use case for service workers is to provide an offline experience for users. By caching resources locally using the Cache API, service workers can make your web app faster and more reliable by making it network-independent. The first time a user accesses your web app, its service worker is installed. The service worker then runs in parallel to your app and can continue doing work even when your app is not running.
+
+## provide an example how to write and manage it
+
+Sure! Here's an example of how to register a service worker in your main JavaScript file:
+
+```javascript
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/service-worker.js')
+    .then(function(registration) {
+      console.log('Service Worker registered with scope:', registration.scope);
+    })
+    .catch(function(err) {
+      console.log('Service Worker registration failed:', err);
+    });
+}
+```
+
+This code checks if the `serviceWorker` object is available in the `navigator` object. If it is, it registers a service worker located at `/service-worker.js`. The `register` function returns a promise that resolves with a `registration` object if the service worker is successfully registered.
+
+In your `service-worker.js` file, you can add event listeners for the `install`, `activate`, and `fetch` events to manage the service worker's behavior. Here's an example:
+
+```javascript
+self.addEventListener('install', function(event) {
+  // Perform install steps
+});
+
+self.addEventListener('activate', function(event) {
+  // Perform activate steps
+});
+
+self.addEventListener('fetch', function(event) {
+  // Respond to fetch events
+});
+```
+
+The `install` event is fired when the service worker is first installed. You can use this event to cache resources that your web app needs to work offline.
+
+The `activate` event is fired when the service worker is activated. You can use this event to clean up old caches and perform other tasks that need to happen when the service worker takes control of the page.
+
+The `fetch` event is fired whenever a network request is made. You can use this event to intercept network requests and return cached responses if they are available.
+
+## How do I cache resources using a service worker?
+
+You can cache resources using the Cache API within the `install` event of your service worker. Here's an example:
+
+```javascript
+var CACHE_NAME = 'my-site-cache-v1';
+var urlsToCache = [
+  '/',
+  '/styles/main.css',
+  '/script/main.js'
+];
+
+self.addEventListener('install', function(event) {
+  // Perform install steps
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then(function(cache) {
+        console.log('Opened cache');
+        return cache.addAll(urlsToCache);
+      })
+  );
+});
+```
+
+In this example, we define a cache name and an array of URLs to cache. In the `install` event, we use the `caches.open` function to open a cache with the specified name. The `open` function returns a promise that resolves with a `cache` object. We can then use the `addAll` function on the `cache` object to add all the URLs in our `urlsToCache` array to the cache.
+
+Once the resources are cached, you can use the `fetch` event to intercept network requests and return cached responses if they are available. Here's an example:
+
+```javascript
+self.addEventListener('fetch', function(event) {
+  event.respondWith(
+    caches.match(event.request)
+      .then(function(response) {
+        // Cache hit - return response
+        if (response) {
+          return response;
+        }
+        return fetch(event.request);
+      }
+    )
+  );
+});
+```
+
+In this example, we use the `caches.match` function to check if a cached response is available for the request. The `match` function returns a promise that resolves with the cached response if it is available, or `undefined` if it is not. If a cached response is available, we return it. Otherwise, we use the `fetch` function to make a network request for the resource.
+
+## How do I delete old caches?
+
+You can delete old caches in the `activate` event of your service worker. Here's an example:
+
+```javascript
+var CACHE_NAME = 'my-site-cache-v1';
+var urlsToCache = [
+  '/',
+  '/styles/main.css',
+  '/script/main.js'
+];
+
+self.addEventListener('activate', function(event) {
+  var cacheWhitelist = [CACHE_NAME];
+  event.waitUntil(
+    caches.keys().then(function(cacheNames) {
+      return Promise.all(
+        cacheNames.map(function(cacheName) {
+          if (cacheWhitelist.indexOf(cacheName) === -1) {
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    })
+  );
+});
+```
+
+In this example, we define a `cacheWhitelist` array that contains the names of the caches that we want to keep. In the `activate` event, we use the `caches.keys` function to get an array of all the cache names. We then use the `map` function to create an array of promises that delete all the caches that are not in our `cacheWhitelist`. We use the `Promise.all` function to wait for all the promises to complete before continuing.
+
+This code will delete all caches that are not in the `cacheWhitelist`. You can update the `cacheWhitelist` array to include the names of the caches that you want to keep.
+
+## How do I update a service worker?
+
+Updating a service worker involves making changes to the service worker file and then triggering an update check. Here's how it works:
+
+1. Make changes to your service worker file (e.g., `service-worker.js`).
+2. Trigger an update check by navigating to a page within the service worker's scope or by calling the `update` function on the `registration` object. For example:
+
+```javascript
+navigator.serviceWorker.getRegistration().then(function(registration) {
+  registration.update();
+});
+```
+
+This code gets the current service worker registration using the `getRegistration` function and then calls the `update` function on the `registration` object to trigger an update check.
+
+3. The browser checks if there is a new version of the service worker file available. If there is, it downloads the new version and installs it.
+4. The new version of the service worker is installed but not yet activated. It enters a waiting state until all pages controlled by the old version of the service worker are closed.
+5. Once all pages controlled by the old version of the service worker are closed, the new version is activated and takes control of the pages.
+
+You can listen for the `updatefound` event on the `registration` object to detect when a new version of the service worker is found and installed. Here's an example:
+
+```javascript
+navigator.serviceWorker.register('/service-worker.js')
+  .then(function(registration) {
+    registration.addEventListener('updatefound', function() {
+      var newWorker = registration.installing;
+      console.log('New service worker found:', newWorker);
+    });
+  });
+```
+
+This code registers a service worker and adds an event listener for the `updatefound` event. When a new version of the service worker is found and installed, the event listener logs a message to the console.
+
+## Ho do i use it with angular
+
+To set up the Angular service worker in your project, you can use the Angular CLI `add` command:
+
+```sh
+ng add @angular/pwa
+```
+
+This command configures your app to use service workers by adding the `@angular/service-worker` package and generating the necessary support files.
+
+Once you have set up the Angular service worker, you can use it to cache resources and manage network requests. The Angular service worker is designed to optimize the end-user experience of using an application over a slow or unreliable network connection while also minimizing the risks of serving outdated content.
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+## explain the concept of currying in JavaScript?
+
+Sure! Currying is a technique in functional programming where a function is transformed into a sequence of functions, each taking a single argument. This allows you to partially apply arguments to a function, creating a new function that takes fewer arguments.
+
+Here's an example of currying in JavaScript:
+
+```javascript
+function curry(fn) {
+  return function curried(...args) {
+    if (args.length >= fn.length) {
+      return fn.apply(this, args);
+    } else {
+      return function (...args2) {
+        return curried.apply(this, args.concat(args2));
+      }
+    }
+  }
+}
+
+function sum(a, b, c) {
+  return a + b + c;
+}
+
+const curriedSum = curry(sum);
+
+console.log(curriedSum(1)(2)(3)); // 6
+console.log(curriedSum(1)(2, 3)); // 6
+console.log(curriedSum(1, 2)(3)); // 6
+```
+
+In this example, we define a `curry` function that takes a function `fn` as an argument and returns a new `curried` function. The `curried` function checks the number of arguments it receives and compares it to the number of arguments expected by the original function `fn`. If the number of arguments is greater than or equal to the number of arguments expected by `fn`, it calls `fn` with the provided arguments. Otherwise, it returns a new function that takes additional arguments and calls `curried` again with the concatenated arguments.
+
+We then define a `sum` function that takes three arguments and returns their sum. We can use the `curry` function to create a new `curriedSum` function that is a curried version of the `sum` function. This allows us to partially apply arguments to the `sum` function and create new functions that take fewer arguments.
+
+
