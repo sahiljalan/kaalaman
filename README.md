@@ -964,7 +964,7 @@ Once you have set up the Angular service worker, you can use it to cache resourc
 
 ## explain the concept of currying in JavaScript?
 
-Sure! Currying is a technique in functional programming where a function is transformed into a sequence of functions, each taking a single argument. This allows you to partially apply arguments to a function, creating a new function that takes fewer arguments.
+`Currying is a technique in functional programming where a function is transformed into a sequence of functions, each taking a single argument. This allows you to partially apply arguments to a function, creating a new function that takes fewer arguments.`
 
 Here's an example of currying in JavaScript:
 
@@ -974,6 +974,7 @@ function curry(fn) {
     if (args.length >= fn.length) {
       return fn.apply(this, args);
     } else {
+        // instead of below function , we can also use curried.bind(this, ...args) directly to return new function with existing params
       return function (...args2) {
         return curried.apply(this, args.concat(args2));
       }
@@ -997,3 +998,50 @@ In this example, we define a `curry` function that takes a function `fn` as an a
 We then define a `sum` function that takes three arguments and returns their sum. We can use the `curry` function to create a new `curriedSum` function that is a curried version of the `sum` function. This allows us to partially apply arguments to the `sum` function and create new functions that take fewer arguments.
 
 
+**Another way where function will have infinite arguments**
+
+```javascript
+function sum(...args) {
+	return args.reduce((total,value) => total+value);
+}
+
+function curry(fn) {
+  function curried(...arg) {
+ 	 this.args = this.args ? [...this.args, ...arg] : arg;
+   return curried;
+ }
+ curried.done = () => {
+ 	return fn(...this.args);
+ }
+ return curried;
+}
+const currySum = curry(sum);
+currySum(1, 2)()()(4,5,6)(3);
+console.log(currySum.done());
+```
+
+The `sum` function takes any number of arguments and returns their sum using the `reduce` method. The `curry` function takes a function as an argument and returns a new function `curried`. The `curried` function takes any number of arguments and stores them in the `args` property of the `this` object. The `done` property of the `curried` function is another function that calls the original function passed to the `curry` function with the stored arguments.
+
+In the example, the `currySum` variable is assigned the result of calling the `curry` function with the `sum` function as an argument. Then, the `currySum` function is called multiple times with different arguments. Finally, the `done` property of the `currySum` function is called and logs the result to the console.
+
+## Function Methods Vs Prototype methods
+
+Using function methods instead of prototype methods is a matter of personal preference and coding style. Both approaches have their advantages and disadvantages.
+
+Function methods, like the one used in the example above provided, are easy to understand and use. They can be defined and called directly on the function object. However, they can increase memory usage because each instance of the function has its own copy of the method.
+
+Prototype methods, on the other hand, are defined on the function's prototype object and are shared between all instances of the function. This can reduce memory usage but can make the code more complex and harder to understand.
+
+Ultimately, it's up to you to decide which approach is best for your specific use case.
+
+## function vs methods
+
+In JavaScript, the terms "function" and "method" are often used interchangeably. However, there is a subtle difference between the two:
+
+- A **function** is a block of code that can be defined and called by its name. It can take arguments as input and return a value. Functions can be defined as standalone entities or as part of an object.
+
+- A **method** is a function that is associated with an object. It is defined as a property of the object and can be called using the dot notation (e.g., `object.method()`). Methods have access to the properties and other methods of the object they are associated with, and can use the `this` keyword to refer to the object.
+
+In summary, a method is a function that is associated with an object and has access to the object's properties and other methods. All methods are functions, but not all functions are methods.
+
+Is there anything else you'd like to know?
