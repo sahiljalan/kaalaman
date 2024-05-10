@@ -417,7 +417,22 @@ $('selector').click(function(event) {
 ```
 This ensures that your code runs only once even if the button is clicked multiple times.
 
-## but if i have defined both click and double click event on same element, how would i stop click event to not to accept double click
+The `event.detail` property provides details about an event, particularly related to mouse interactions. Here’s what it means for different types of events:
+
+1. For click and dblclick events, `event.detail` returns the click count. Specifically:
+  - For a single click, the value is the number of times the mouse was clicked.
+  - For a double-click (dblclick), the value is always 2.
+
+2. Mouse Down and Mouse Up Events:
+  -  For mousedown and mouseup events, `event.detail` returns the click count plus 1.
+    -  For example, if the mouse button was pressed twice (mousedown) and then released, the value would be 3.
+
+3. Other Events:
+For all other events, such as keyboard events or custom events, `event.detail` is 0.
+
+In summary, `event.detail` provides information about the number of clicks that occurred during an event. It’s a read-only property and can be useful when handling user interactions in JavaScript.
+
+## If I have defined both click and double click event on same element, how would i stop click event to not to accept double click
 
 If you have both a `click` and a `dblclick` event defined on the same element and you want to prevent the `click` event from being triggered by a double-click, you can use a timer to delay the execution of the `click` event handler. Here's an example that shows how to do this:
 
