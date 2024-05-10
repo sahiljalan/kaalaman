@@ -396,7 +396,7 @@ The `customRound` function takes a number `x` as an argument and returns the val
 
 ## how to stop or prevent double click in javascript
 
-You can prevent double-clicks on an element in JavaScript by adding an event listener to the element that listens for the `dblclick` event and cancels it using the `event.preventDefault()` method. Here's an example that shows how to prevent double-clicks on a button with the ID `myButton`:
+### You can prevent default double-clicks behavior on an element in JavaScript by adding an event listener to the element that listens for the `dblclick` event and cancels it using the `event.preventDefault()` method. Here's an example that shows how to prevent double-clicks on a button with the ID `myButton`:
 
 ```javascript
 document.getElementById('myButton').addEventListener('dblclick', function(event) {
@@ -405,6 +405,17 @@ document.getElementById('myButton').addEventListener('dblclick', function(event)
 ```
 
 This code adds an event listener to the button that listens for the `dblclick` event. When the event is triggered, the event listener function is called and it cancels the default action of the event (i.e., the double-click) by calling the `event.preventDefault()` method.
+
+### When handling button clicks or other events, you can use the event.detail property to check if the event is triggered multiple times. For example:
+
+```JavaScript
+$('selector').click(function(event) {
+    if (!event.detail || event.detail === 1) {
+        // Execute your code here (only on the first click)
+    }
+});
+```
+This ensures that your code runs only once even if the button is clicked multiple times.
 
 ## but if i have defined both click and double click event on same element, how would i stop click event to not to accept double click
 
