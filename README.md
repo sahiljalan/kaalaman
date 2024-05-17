@@ -658,6 +658,69 @@ The `constructor` property of the `prototype` object is used to identify the fun
 
 I hope this helps clarify that the `prototype` property of a function object has a `constructor` property by default. Is there anything else you would like to know?
 
+## 'this' keyword in depth
+
+In JavaScript, `this` is a special keyword that’s automatically defined in the scope of every function. It refers to an object—the one that is currently being ‘used’ by the function.
+
+Here’s how this behaves in different contexts:
+
+**Global Context**: In the global execution context (outside of any function), this refers to the global object. In a web browser, the global object is window.
+
+```javascript
+console.log(this); // Outputs: Window {...} (or the global object)
+```
+
+**Object Method**: When a function is called as a method of an object, this is set to the object the method is called on.
+
+```javascript
+var obj = {
+    prop: 'Hello',
+    func: function() {
+        console.log(this.prop);
+    }
+};
+obj.func(); // Outputs: "Hello"
+```
+
+**Function Invocation**: When a function is invoked, this will be set to the global object or undefined (in strict mode).
+
+```javascript
+function func() {
+    console.log(this);
+}
+func(); // Outputs: Window {...} (or undefined in strict mode)
+```
+**Constructor Function**: When a function is used as a constructor (with the new keyword), this is set to the newly created instance.
+
+```javascript
+function Person(name) {
+    this.name = name;
+}
+var john = new Person('John');
+console.log(john.name); // Outputs: "John"
+```
+
+**Event Handlers**: In event handlers, this is set to the element that the event was fired from.
+
+```javascript
+button.addEventListener('click', function() {
+    console.log(this); // Outputs: the element that was clicked
+});
+```
+**Arrow Functions**: Arrow functions do not have their own this. Instead, they inherit this from the enclosing execution context.
+
+```javascript
+var obj = {
+    prop: 'Hello',
+    func: () => {
+        console.log(this.prop);
+    }
+};
+obj.func(); // Outputs: undefined (because `this` is not bound to `obj`)
+```
+
+Remember, the value of `this` is determined by how a function is called. It can’t be set by assignment during execution, and it may be different each time the function is called. Understanding this is a key part of mastering JavaScript.
+
 ## Abort previous hit API call in javascript
 
 One way to prevent the scenario you described is to cancel the previous API call when the user navigates back to the list page. This can be done using an API that supports request cancellation, such as the `AbortController` API in modern browsers.
