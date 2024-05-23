@@ -164,7 +164,7 @@ In summary, a function context is a type of execution context that is created wh
 
 I hope this helps clarify the difference between function, eval, and global contexts. Let me know if you have any further questions.
 
-## are there is no application conext or global context, are they all are a type of execution context only?
+## are there is no application context or global context, are they all are a type of execution context only?
 
 Yes, that is correct. The global context, also known as the application context, is a type of execution context. It represents the environment in which the global code is executed and is created when the JavaScript engine starts running a script. The global context contains all the global variables and functions that are available to the entire script.
 
@@ -173,6 +173,30 @@ As mentioned earlier, there are three types of execution contexts in JavaScript:
 In summary, the global context (or application context) is a type of execution context that represents the environment in which the global code is executed. All three types of execution contexts (global, function, and eval) contain their own local variables and have access to their outer environment.
 
 I hope this helps clarify that the global context (or application context) is a type of execution context. Let me know if you have any further questions.
+
+## Global Execution Context (GEC) and its relationship with the call stack
+
+Let's clarify the concept of the global execution context (GEC) and its relationship with the call stack:
+
+1. **Global Execution Context (GEC)**:
+   - The GEC represents the outermost scope of your JavaScript program.
+   - It includes global variables, function declarations, and code that is not inside any specific function.
+   - The GEC is created when your program starts running (e.g., when a script is loaded in a web page or when a Node.js script begins execution).
+   - Unlike other execution contexts (such as function contexts), the GEC is not explicitly pushed onto the call stack.
+
+2. **Call Stack and Execution Contexts**:
+   - The call stack keeps track of execution contexts (contexts associated with function calls).
+   - When a function is called, its execution context is pushed onto the stack.
+   - Nested function calls create a stack of contexts.
+   - However, the GEC is not part of this stack; it exists independently.
+   - The GEC remains active throughout the program's lifetime.
+
+3. **Event Loop and Stack Empty**:
+   - When we say the stack is empty, we mean that there are no active contexts (no functions currently executing).
+   - The event loop uses this condition to process pending tasks from the event queue.
+   - The GEC is not affected by the call stack's empty state; it continues to exist.
+
+In summary, the GEC is created at the start of your program but is not pushed onto the call stack. It remains available throughout the program's execution.
 
 ## Explain event loop in terms of what We learn so far
 
