@@ -396,6 +396,225 @@ Here's a summary of what we've discussed so far:
 
 I hope this summary helps consolidate your understanding of these concepts. Let me know if you have any further questions.
 
+## Call Stack, Task Queue and Micro Task Queue in Action
+
+Absolutely, let's go through the execution of this JavaScript code snippet with asynchronous callbacks and promises in `foo()` and `bar()`, and see how the call stack, event loop, task queue, and microtask queue interact:
+
+```javascript
+function foo() {
+  console.log("foo start");
+  setTimeout(function() {
+    console.log("foo end");
+  }, 0);
+  Promise.resolve().then(() => console.log('foo microtask'));
+  bar();
+}
+
+function bar() {
+  console.log("bar start");
+  setTimeout(function() {
+    console.log("bar end");
+  }, 0);
+  Promise.resolve().then(() => console.log('bar microtask'));
+}
+
+foo();
+```
+
+1. When the script starts executing, the global execution context is created. and when the `foo()` function is called, a new execution context for `foo` is created and pushed onto the call stack.
+
+```plaintext
+Call Stack:     Task Queue:     Microtask Queue:
+-----------     -----------     ----------------
+| foo()   |     |             |  |              |
+-----------
+```
+
+2. The `console.log("foo start")` is called, its execution context is created and pushed onto the stack.
+
+```plaintext
+Call Stack:     Task Queue:     Microtask Queue:
+-----------     -----------     ----------------
+| console.log() |             |  |              |
+| foo()   |     |             |  |              |
+-----------
+```
+
+3. The `console.log("foo start")` is executed and poped out of the stack. Then, the `setTimeout` function is called with a callback function and a delay of `0` milliseconds and put into the stack.
+
+```plaintext
+Call Stack:     Task Queue:     Microtask Queue:
+-----------     -----------     ----------------
+| setTimeout() |             |  |              |
+| foo()   |     |             |  |              |
+-----------
+```
+
+4. The setTimeout function itself completes almost immediately, so its execution context is popped off the call stack. and Then Promise() execution context is created and pushed into the stack. However, the callback function(setTimeout) isn’t executed immediately. Instead, the Web API handles the timer. When the timer expires, the callback function is placed in the Task Queue.(The `setTimeout` function is a Web API provided by the browser, so it's handled outside of the JavaScript runtime.)
+
+```plaintext
+Call Stack:     Task Queue:     Microtask Queue:
+-----------     ----------------     ----------------
+| Promise() |             |  |              |
+| foo()   |     | foo callback |  |              |
+-----------
+```
+
+5. Next, a promise is resolved and poped out of stack and its `.then()` callback is placed in the Microtask Queue.
+
+```plaintext
+Call Stack:     Task Queue:     Microtask Queue:
+-----------     ----------------     ----------------
+|         |             |  |              |
+| foo()   |     | foo callback |  |  foo microtask  |
+-----------
+```
+
+6. The `bar()` function is called, creating a new execution context for `bar` and pushing it onto the call stack. Inside `bar()`, the `console.log("bar start")` execution context is created and pushed into stack.
+
+```plaintext
+Call Stack:     Task Queue:     Microtask Queue:
+-----------     -----------     ----------------
+| console.log() |             |  |              |
+| bar()   |     | foo callback |  | foo microtask |
+| foo()   |     |             |  |              |
+-----------
+```
+
+7. Inside `bar()`, the `console.log("bar start")` statement is executed and poped out. Then, the `setTimeout` function is called with a callback function and a delay of `0` milliseconds and put it onto the stack. The callback function is placed in the Task Queue after the specified delay.
+
+```plaintext
+Call Stack:     Task Queue:     Microtask Queue:
+-----------     -----------     ----------------
+| setTimeout() |             |  |              |
+| bar()   |     | foo callback |  | foo microtask |
+| foo()   |     |             |  |              |
+-----------
+```
+
+8. After specific delay `bar()` callback put into Task queue. Next, a promise is called and put into the stack.
+
+```plaintext
+Call Stack:     Task Queue:     Microtask Queue:
+-----------     -----------     ----------------
+| Promise() |             |  |              |
+| bar()   |     | foo callback |  | foo microtask |
+| foo()   |     | bar callback |  |               |
+-----------
+```
+
+9. Next, a promise is resolved and conext is poped out of the stack. Next its `.then()` callback is placed in the Microtask Queue.
+
+```plaintext
+Call Stack:     Task Queue:     Microtask Queue:
+-----------     -----------     ----------------
+| bar()   |     | foo callback |  | foo microtask |
+| foo()   |     | bar callback |  | bar microtask |
+-----------
+```
+
+10. After `bar()` has finished executing, its execution context is popped off the call stack.
+
+```plaintext
+Call Stack:     Task Queue:     Microtask Queue:
+-----------     -----------     ----------------
+| foo()   |     | foo callback |  | foo microtask |
+|         |     | bar callback |  | bar microtask |
+-----------
+```
+
+11. After `foo()` has finished executing, its execution context is popped off the call stack.
+
+```plaintext
+Call Stack:     Task Queue:     Microtask Queue:
+-----------     -----------     ----------------
+|         |     | foo callback |  | foo microtask |
+|         |     | bar callback |  | bar microtask |
+-----------
+```
+
+12. Now, the JavaScript runtime is idle, and the Event Loop checks if there's anything in the Microtask Queue before the Task Queue. It finds the `foo` microtask, so it pushes a new execution context for the `foo` microtask onto the call stack.
+
+```plaintext
+Call Stack:     Task Queue:     Microtask Queue:
+-----------     -----------     ----------------
+| foo microtask | foo callback |  | bar microtask |
+|         |     | bar callback |  |              |
+-----------
+```
+
+13. The `foo` microtask executes the `console.log('foo microtask')` statement, and then its execution context is popped off the call stack.
+
+```plaintext
+Call Stack:     Task Queue:     Microtask Queue:
+-----------     -----------     ----------------
+|         |     | foo callback |  | bar microtask |
+|         |     | bar callback |  |              |
+-----------
+```
+
+14. The Event Loop checks the Microtask Queue again, finds the `bar` microtask, and pushes a new execution context for the `bar` microtask onto the call stack.
+
+```plaintext
+Call Stack:     Task Queue:     Microtask Queue:
+-----------     -----------     ----------------
+| bar microtask | foo callback |  |              |
+|         |     | bar callback |  |              |
+-----------
+```
+
+15. The `bar` microtask executes the `console.log('bar microtask')` statement, and then its execution context is popped off the call stack.
+
+```plaintext
+Call Stack:     Task Queue:     Microtask Queue:
+-----------     -----------     ----------------
+|         |     | foo callback |  |              |
+|         |     | bar callback |  |              |
+-----------
+```
+
+16. Now, the JavaScript runtime is idle again, and the Event Loop checks if there's anything in the Task Queue. It finds the `foo` callback, so it pushes a new execution context for the `foo` callback onto the call stack.
+
+```plaintext
+Call Stack:     Task Queue:     Microtask Queue:
+-----------     -----------     ----------------
+| foo callback | bar callback |  |              |
+|         |     |             |  |              |
+-----------
+```
+
+17. The `foo` callback executes the `console.log("foo end")` statement, and then its execution context is popped off the call stack.
+
+```plaintext
+Call Stack:     Task Queue:     Microtask Queue:
+-----------     -----------     ----------------
+|         |     | bar callback |  |              |
+|         |     |             |  |              |
+-----------
+```
+
+18. The Event Loop checks the Task Queue again, finds the `bar` callback, and pushes a new execution context for the `bar` callback onto the call stack.
+
+```plaintext
+Call Stack:     Task Queue:     Microtask Queue:
+-----------     -----------     ----------------
+| bar callback |             |  |              |
+|         |     |             |  |              |
+-----------
+```
+
+19. Finally, The `bar` callback executes the `console.log("bar end")` statement, and then its execution context is popped off the call stack. leaving the call stack. task queue and micro task empty.
+
+```plaintext
+Call Stack:     Task Queue:     Microtask Queue:
+-----------     -----------     ----------------
+|         |     |             |  |              |
+|         |     |             |  |              |
+-----------
+```
+
+This is a simplified explanation of how the JavaScript call stack, event loop, task queue, and microtask queue work together to handle asynchronous code.😊
+
 ## Hoisting and its relationship with execution contexts and blocks
 
 Let's clarify the concept of hoisting and its relationship with execution contexts and blocks:
