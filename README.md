@@ -174,6 +174,64 @@ In summary, the global context (or application context) is a type of execution c
 
 I hope this helps clarify that the global context (or application context) is a type of execution context. Let me know if you have any further questions.
 
+## "call stack (which keeps track of active contexts)." which means there are multiple active contexts at the same time. How?
+
+Let's dive deeper into the concept of the **call stack** and how it keeps track of active execution contexts.
+
+1. **Call Stack Overview**:
+   - The call stack is a data structure used by JavaScript (and other programming languages) to manage function calls.
+   - It keeps track of the order in which functions are called and their corresponding execution contexts.
+   - When a function is invoked, its execution context is pushed onto the stack.
+   - When the function completes, its context is popped off the stack.
+
+2. **Multiple Active Contexts**:
+   - Although the call stack processes functions sequentially (one at a time), it can have multiple active contexts at different points in time.
+   - Here's how this happens:
+     - **Function Calls**:
+       - When you call a function (e.g., `foo()`), its execution context is added to the top of the stack.
+       - If `foo()` calls another function (e.g., `bar()`), a new execution context for `bar()` is pushed onto the stack.
+       - Now both `foo()` and `bar()` are active contexts.
+     - **Nested Calls**:
+       - Functions can be nested within each other (e.g., `foo()` calls `bar()`, which calls `baz()`).
+       - Each nested function creates its own execution context.
+       - The stack grows with each nested call.
+     - **Asynchronous Tasks**:
+       - Asynchronous tasks (e.g., event listeners, timers, API requests) also create execution contexts.
+       - When an event occurs (e.g., a button click), the associated event handler's context is pushed onto the stack.
+       - While waiting for asynchronous results, other contexts (from previous function calls) remain active.
+     - **LIFO Principle**:
+       - The call stack follows the "last in, first out" (LIFO) principle.
+       - The topmost context represents the currently executing function.
+       - When a function completes, its context is removed (popped) from the stack.
+
+3. **Example**:
+   - Consider this code snippet:
+     ```javascript
+     function foo() {
+       console.log("foo");
+       bar();
+     }
+
+     function bar() {
+       console.log("bar");
+     }
+
+     foo();
+     ```
+   - The call stack during execution:
+     1. `foo()` is called, and its context is pushed onto the stack.
+     2. Inside `foo()`, `bar()` is called, and its context is pushed on top.
+     3. The stack now contains both `foo()` and `bar()` contexts.
+     4. When `bar()` completes, its context is popped off.
+     5. Finally, `foo()` completes, and its context is removed.
+     6. The stack is empty.
+
+4. **Summary**:
+   - The call stack can have multiple active contexts due to function calls, nested calls, and asynchronous tasks.
+   - It ensures proper execution order and manages the flow of execution contexts.
+
+In essence, the call stack dynamically handles multiple contexts, allowing JavaScript to execute code in an organized manner! 😊
+
 ## Global Execution Context (GEC) and its relationship with the call stack
 
 Let's clarify the concept of the global execution context (GEC) and its relationship with the call stack:
@@ -210,9 +268,120 @@ Here's how the event loop works in terms of what you've learned so far:
 4. Once the task has finished executing, the event loop goes back to step 2 and checks if there are any more microtasks waiting in the microtask queue. If there are, it processes them before moving on to the next task in the event queue.
 5. This process continues until both the microtask queue and the event queue are empty. At this point, the event loop will wait for new tasks or events to be added to the queues before starting the process again.
 
+Let's break it down further:
+
+1. **Execution Stack (Call Stack)**:
+   - The execution stack (or call stack) keeps track of the currently executing function calls.
+   - When a function is called, an execution context is created and pushed onto the stack.
+   - The topmost execution context represents the currently executing function.
+   - Once a function completes its execution, its context is popped off the stack.
+   - The call stack ensures that functions execute in a predictable order (LIFO).
+
+2. **Microtask Queue**:
+   - Microtasks are tasks that need to be executed after the current task but before the next event loop iteration.
+   - Examples of microtasks include resolved promises (`then` callbacks) and `queueMicrotask` calls.
+   - Microtasks are processed immediately after the current function completes (before the event queue).
+
+3. **Event Queue**:
+   - The event queue holds tasks that are scheduled to run later (e.g., callbacks from `setTimeout`, user interactions).
+   - When the call stack is empty, the event loop dequeues tasks from the event queue.
+   - These tasks are executed one by one, ensuring that asynchronous code doesn't block the main thread.
+
+4. **Event Loop**:
+   - The event loop continuously checks the call stack, microtask queue, and event queue.
+   - It follows this order:
+     1. Process the call stack (execute functions).
+     2. Process all microtasks in the microtask queue.
+     3. Dequeue and execute tasks from the event queue.
+     4. Repeat steps 2 and 3 until both queues are empty.
+   - This cycle allows JavaScript to handle both synchronous and asynchronous code.
+  
 In summary, the event loop is a mechanism that allows JavaScript to perform asynchronous operations by continuously checking if there are any tasks or microtasks that need to be executed. It processes the execution stack, microtask queue, and event queue in a specific order to ensure that all tasks and events are handled in a timely manner.
 
 I hope this helps explain how the event loop works in terms of what you've learned so far. Let me know if you have any further questions.
+
+## when it dequeue, then will it push to call stack and call stack will execute or event queue?
+
+When an item is dequeued from the **event queue**, it doesn't directly push onto the **call stack** for execution. Instead, the event loop checks if the call stack is empty. If it is, the event loop takes the dequeued task (e.g., a callback function) and pushes it onto the call stack. The call stack then executes the function.
+
+Here's the process in more detail:
+
+1. **Dequeue from Event Queue**:
+   - The event loop dequeues a task (e.g., a callback) from the event queue.
+   - This task could be a result of a `setTimeout`, an event listener, or any other asynchronous operation.
+
+2. **Check Call Stack**:
+   - The event loop checks if the call stack is empty.
+   - If the call stack is empty, it proceeds to the next step.
+
+3. **Push to Call Stack**:
+   - The dequeued task (callback) is pushed onto the call stack.
+   - The call stack now contains the execution context for this function.
+
+4. **Execute Function**:
+   - The function associated with the dequeued task starts executing.
+   - As long as there are no other functions currently executing (i.e., the call stack is empty), this function runs.
+
+5. **Completion and Popping**:
+   - Once the function completes its execution, its context is popped off the call stack.
+   - If there are more tasks in the event queue, the event loop repeats the process.
+
+In summary, the event loop manages the order of execution by checking the call stack and the event queue. When the call stack is empty, it pushes a task from the event queue onto the stack for execution. The call stack then handles the execution of the function associated with that task. 😊
+
+## as javacsript is single thread, which here it means Main thread, right?, then who is actually executing aysynchronous task, then it will break the meaning javascript is single threaded
+
+1. **JavaScript as a Single Thread**:
+   - JavaScript is indeed **single-threaded**, meaning it has only one main execution thread (the **main thread**).
+   - The main thread executes JavaScript code sequentially, one operation at a time.
+   - This single-threaded nature simplifies the language and ensures predictable behavior.
+
+2. **Asynchronous Execution**:
+   - Despite being single-threaded, JavaScript can handle **asynchronous tasks** efficiently.
+   - Asynchronous tasks include network requests, timers, and event listeners.
+   - When you initiate an asynchronous operation (e.g., fetching data from an API), JavaScript doesn't block the main thread while waiting for the result.
+   - Instead, it delegates the task to other components (e.g., the browser or Node.js environment).
+
+3. **Event Loop and Web APIs**:
+   - The **event loop** is a critical part of handling asynchronous operations.
+   - When an asynchronous task is initiated (e.g., using `setTimeout` or making an HTTP request), JavaScript hands it off to a **Web API** provided by the environment (browser or Node.js).
+   - The Web API manages the task outside the main thread.
+   - Once the task completes (e.g., data is fetched), the Web API enqueues a callback in the **event queue**.
+
+4. **Event Loop Continues**:
+   - The event loop continuously checks the event queue.
+   - If the call stack (main thread) is empty, the event loop dequeues the next task from the event queue.
+   - It pushes the callback associated with that task onto the call stack for execution.
+   - This process ensures that asynchronous tasks don't block the main thread.
+
+5. **Concurrency and Parallelism**:
+   - While JavaScript is single-threaded, it achieves concurrency through asynchronous execution.
+   - Concurrency means handling multiple tasks simultaneously, even though only one task executes at a given moment.
+   - Parallelism, on the other hand, involves true simultaneous execution (which JavaScript doesn't directly support).
+
+6. **Example: Button Click Event**:
+   - Suppose you have an HTML button with an `onclick` attribute:
+     ```html
+     <button onclick="handleButtonClick()">Click me</button>
+     ```
+   - When the user clicks the button, the following happens:
+     1. The browser detects the click event.
+     2. It looks up the `handleButtonClick` function associated with the `onclick` attribute.
+     3. The `handleButtonClick` function is executed.
+     4. A new execution context for `handleButtonClick` is created and pushed onto the call stack.
+     5. Inside this context, the function code runs (e.g., updating UI, making API requests).
+     6. If the function contains asynchronous code (e.g., fetching data), the event loop schedules it.
+     7. The main thread remains responsive during the asynchronous operation.
+     8. Once the data is fetched (or any other task completes), the callback is enqueued in the callback queue.
+     9. The event loop checks the call stack (which is now empty) and pushes the callback onto the stack.
+     10. The callback executes, completing the user interaction.
+
+4. **Summary**:
+   - JavaScript's single-threaded nature doesn't prevent it from handling asynchronous tasks efficiently. The event loop and Web APIs play crucial roles in achieving this balance. 😊   
+   - User interactions (such as button clicks) trigger the execution of event handler functions.
+   - Each event handler has its own execution context.
+   - The event loop ensures that asynchronous tasks don't block the main thread.
+
+In essence, user interactions create execution contexts, allowing JavaScript to respond to events and maintain a smooth user experience! 😊
 
 ## Conclusion
 
@@ -223,8 +392,49 @@ Here's a summary of what we've discussed so far:
 - The global context, also known as the application context, is the outermost execution context and represents the environment in which the global code is executed. Function contexts are created when functions are called, and eval contexts are created when the `eval` function is called.
 - The event loop is a mechanism that allows JavaScript to perform asynchronous operations by continuously checking if there are any tasks or microtasks that need to be executed. It processes the execution stack, microtask queue, and event queue in a specific order to ensure that all tasks and events are handled in a timely manner.
 - The microtask queue has a higher priority than the event queue, so all microtasks are processed before the next task in the event queue is executed. Microtasks can be created using promises or by calling `queueMicrotask`.
+- JavaScript remains single-threaded in terms of executing synchronous code. Asynchronous tasks (handled by external components) ensure responsiveness and prevent blocking.While it may seem like two threads are working together, it’s more accurate to say that JavaScript leverages external components to manage asynchronous tasks while maintaining its single-threaded execution.
 
 I hope this summary helps consolidate your understanding of these concepts. Let me know if you have any further questions.
+
+## Hoisting and its relationship with execution contexts and blocks
+
+Let's clarify the concept of hoisting and its relationship with execution contexts and blocks:
+
+1. **Hoisting Overview**:
+   - Hoisting refers to the behavior where variable declarations and function declarations are moved (conceptually) to the top of their containing scope during the compilation phase.
+   - It occurs during the creation of an execution context (whether it's a new function context or a block context).
+
+2. **Execution Contexts and Blocks**:
+   - When a new execution context is created (e.g., when a function is called or a block of code is executed), hoisting takes place within that context.
+   - This means that variable and function declarations within that context are processed before the actual code execution begins.
+   - Blocks (such as those within `if` statements or loops) do not create separate execution contexts but inherit the context from their containing function or the global context.
+
+3. **Block-Scoped Variables**:
+   - Variables declared with `let` and `const` within a block are block-scoped.
+   - They are hoisted to the top of their block but remain uninitialized until their actual assignment in the code.
+   - Unlike function-scoped variables (declared with `var`), block-scoped variables do not belong to the entire function context.
+
+4. **Example**:
+   ```javascript
+   function exampleFunction() {
+     if (true) {
+       let blockVar = "Inside block"; // Block-scoped variable
+       console.log(blockVar);
+     }
+     // console.log(blockVar); // Error: blockVar is not accessible here
+   }
+
+   exampleFunction();
+   // console.log(blockVar); // Error: blockVar is not accessible here
+   ```
+   - In this example, `blockVar` is scoped to the block within the `if` statement.
+   - It is not accessible outside that block.
+
+5. **Summary**:
+   - Hoisting occurs within each execution context (whether it's a function context or a block context).
+   - Blocks do not introduce new execution contexts but affect variable scoping within the existing context.
+   - Hoisting occurs once for the entire function context (including variable declarations).
+   - Within the function, blocks (such as the one inside the if statement) do not create separate execution contexts but inherit the same context. Block-scoped variables are limited to their specific blocks. So, hoisting happens once for the overall function context, including any blocks within it.
 
 ## Custom `Object.freeze()` method using `Object.defineProperty()`;
 
