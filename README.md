@@ -49,93 +49,6 @@ JavaScript is technically a "dialect" of ECMAScript, the Mozilla Foundation can 
 
 In the early days, Microsoft decided also to do what Netscape was doing on their own browser, and they developed JScript, which is also an ECMAScript dialect, but was named in this way to avoid trademark issues.
 
-## Tasks vs Micro task Example
-
-Here's an example that demonstrates the difference between the task queue and the microtask queue using `Promise` and `setTimeout`:
-
-```javascript
-console.log('script start');
-
-setTimeout(() => { 
-setTimeout(() => {console.log(' inner setTimeout before promise');  }, 0);
- Promise.resolve()
- .then(() => { console.log('promise1'); })
- .then(() => { console.log('promise2'); }); 
-
-setTimeout(() => {console.log(' inner setTimeout after promise');  }, 0);
- console.log('setTimeout'); 
-
-}, 0); 
-
-console.log('script end');
-```
-
-The output of the given code will be:
-
-```
-script start
-script end
-setTimeout
-promise1
-promise2
-inner setTimeout before promise
-inner setTimeout after promise
-```
-
-Here's an explanation of how this code works:
-
-1. The first line of code logs `script start` to the console.
-2. The next line sets a timeout with a delay of 0 milliseconds. This means that the callback function passed to `setTimeout` will be added to the event queue(task queue) after the current execution stack is empty.
-3. The last line logs `script end` to the console.
-4. After the current execution stack is empty, the callback function passed to `setTimeout` is executed. This logs `setTimeout` to the console.
-5. Inside this callback function, another `setTimeout` is called with a delay of 0 milliseconds. This means that its callback function will be added to the event queue(task queue) after the current execution stack is empty.
-6. A promise is created and resolved immediately. This adds its `then` callback functions to the microtask queue.
-7. The microtask queue is processed before the event queue(task queue), so the `then` callbacks are executed before the inner `setTimeout` callback. This logs `promise1` and `promise2` to the console.
-8. After the microtask queue is empty, the inner `setTimeout` callback is executed. This logs `inner setTimeout before promise` and `inner setTimeout after promise` to the console.
-
-I hope this helps! Let me know if you have any further questions.
-
-In summary, this example demonstrates how `Promise` callbacks are added to the microtask queue and executed before callbacks in the task queue (such as those scheduled using `setTimeout()`). The microtask queue is processed after all synchronous code has finished executing and before any tasks in the task queue are processed.
-
-## Priority of executing event by event loop.
-
-If the event queue(task queue) is currently executing a callback function and there are microtasks waiting in the microtask queue, the event loop will finish executing the current callback function and then process all the microtasks in the microtask queue before moving on to the next callback function in the event queue(task queue).
-
-The microtask queue has a higher priority than the event queue(task queue), so all microtasks are processed before the next callback function in the event queue(task queue) is executed. This means that if new microtasks are added to the microtask queue while it is being processed, these new microtasks will also be executed before the next callback function in the event queue(task queue).
-
-In summary, if there are microtasks waiting in the microtask queue while the event queue(task queue) is executing a callback function, the event loop will finish executing the current callback function, process all the microtasks in the microtask queue, and then move on to the next callback function in the event queue(task queue).
-
-## How to create custom microTask queue
-
-In JavaScript, you can create microtasks by using promises or by using the `queueMicrotask` function. When a promise is resolved or rejected, its `then`, `catch`, or `finally` callbacks are added to the microtask queue. Similarly, when you call `queueMicrotask` with a callback function as an argument, that callback function is added to the microtask queue.
-
-Here's an example of how you can create and execute microtasks using promises:
-
-```javascript
-Promise.resolve()
-  .then(() => console.log('Microtask 1'))
-  .then(() => console.log('Microtask 2'));
-
-console.log('Script end');
-```
-
-In this example, we create a resolved promise and add two `then` callbacks to it. These callbacks are added to the microtask queue. After the current script finishes executing and logs `Script end` to the console, the event loop will process the microtask queue and execute the two callbacks in order.
-
-Here's another example using the `queueMicrotask` function:
-
-```javascript
-queueMicrotask(() => console.log('Microtask 1'));
-queueMicrotask(() => console.log('Microtask 2'));
-
-console.log('Script end');
-```
-
-In this example, we add two callback functions to the microtask queue using `queueMicrotask`. After the current script finishes executing and logs `Script end` to the console, the event loop will process the microtask queue and execute the two callbacks in order.
-
-## Event queue vs Task queue
-
-the event queue and the task queue refer to the same thing. The terms are often used interchangeably to describe a queue of callback functions that are waiting to be executed by the event loop.
-
 ## execution stack vs execution context
 
 The execution stack, also known as the call stack, is a stack data structure that keeps track of the current execution context and the order in which functions are called. When a function is called, a new execution context is created and pushed onto the top of the execution stack. When the function returns, its execution context is popped off the top of the stack and control is returned to the previous execution context.
@@ -255,6 +168,93 @@ Let's clarify the concept of the global execution context (GEC) and its relation
    - The GEC is not affected by the call stack's empty state; it continues to exist.
 
 In summary, the GEC is created at the start of your program but is not pushed onto the call stack. It remains available throughout the program's execution.
+
+## Tasks vs Micro task Example
+
+Here's an example that demonstrates the difference between the task queue and the microtask queue using `Promise` and `setTimeout`:
+
+```javascript
+console.log('script start');
+
+setTimeout(() => { 
+setTimeout(() => {console.log(' inner setTimeout before promise');  }, 0);
+ Promise.resolve()
+ .then(() => { console.log('promise1'); })
+ .then(() => { console.log('promise2'); }); 
+
+setTimeout(() => {console.log(' inner setTimeout after promise');  }, 0);
+ console.log('setTimeout'); 
+
+}, 0); 
+
+console.log('script end');
+```
+
+The output of the given code will be:
+
+```
+script start
+script end
+setTimeout
+promise1
+promise2
+inner setTimeout before promise
+inner setTimeout after promise
+```
+
+Here's an explanation of how this code works:
+
+1. The first line of code logs `script start` to the console.
+2. The next line sets a timeout with a delay of 0 milliseconds. This means that the callback function passed to `setTimeout` will be added to the event queue(task queue) after the current execution stack is empty.
+3. The last line logs `script end` to the console.
+4. After the current execution stack is empty, the callback function passed to `setTimeout` is executed. This logs `setTimeout` to the console.
+5. Inside this callback function, another `setTimeout` is called with a delay of 0 milliseconds. This means that its callback function will be added to the event queue(task queue) after the current execution stack is empty.
+6. A promise is created and resolved immediately. This adds its `then` callback functions to the microtask queue.
+7. The microtask queue is processed before the event queue(task queue), so the `then` callbacks are executed before the inner `setTimeout` callback. This logs `promise1` and `promise2` to the console.
+8. After the microtask queue is empty, the inner `setTimeout` callback is executed. This logs `inner setTimeout before promise` and `inner setTimeout after promise` to the console.
+
+I hope this helps! Let me know if you have any further questions.
+
+In summary, this example demonstrates how `Promise` callbacks are added to the microtask queue and executed before callbacks in the task queue (such as those scheduled using `setTimeout()`). The microtask queue is processed after all synchronous code has finished executing and before any tasks in the task queue are processed.
+
+## Priority of executing event by event loop.
+
+If the event queue(task queue) is currently executing a callback function and there are microtasks waiting in the microtask queue, the event loop will finish executing the current callback function and then process all the microtasks in the microtask queue before moving on to the next callback function in the event queue(task queue).
+
+The microtask queue has a higher priority than the event queue(task queue), so all microtasks are processed before the next callback function in the event queue(task queue) is executed. This means that if new microtasks are added to the microtask queue while it is being processed, these new microtasks will also be executed before the next callback function in the event queue(task queue).
+
+In summary, if there are microtasks waiting in the microtask queue while the event queue(task queue) is executing a callback function, the event loop will finish executing the current callback function, process all the microtasks in the microtask queue, and then move on to the next callback function in the event queue(task queue).
+
+## How to create custom microTask queue
+
+In JavaScript, you can create microtasks by using promises or by using the `queueMicrotask` function. When a promise is resolved or rejected, its `then`, `catch`, or `finally` callbacks are added to the microtask queue. Similarly, when you call `queueMicrotask` with a callback function as an argument, that callback function is added to the microtask queue.
+
+Here's an example of how you can create and execute microtasks using promises:
+
+```javascript
+Promise.resolve()
+  .then(() => console.log('Microtask 1'))
+  .then(() => console.log('Microtask 2'));
+
+console.log('Script end');
+```
+
+In this example, we create a resolved promise and add two `then` callbacks to it. These callbacks are added to the microtask queue. After the current script finishes executing and logs `Script end` to the console, the event loop will process the microtask queue and execute the two callbacks in order.
+
+Here's another example using the `queueMicrotask` function:
+
+```javascript
+queueMicrotask(() => console.log('Microtask 1'));
+queueMicrotask(() => console.log('Microtask 2'));
+
+console.log('Script end');
+```
+
+In this example, we add two callback functions to the microtask queue using `queueMicrotask`. After the current script finishes executing and logs `Script end` to the console, the event loop will process the microtask queue and execute the two callbacks in order.
+
+## Event queue vs Task queue
+
+the event queue and the task queue refer to the same thing. The terms are often used interchangeably to describe a queue of callback functions that are waiting to be executed by the event loop.
 
 ## Explain event loop in terms of what We learn so far
 
