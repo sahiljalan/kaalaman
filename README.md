@@ -176,14 +176,17 @@ Here's an example that demonstrates the difference between the task queue and th
 ```javascript
 console.log('script start');
 
-setTimeout(() => { 
-setTimeout(() => {console.log(' inner setTimeout before promise');  }, 0);
- Promise.resolve()
- .then(() => { console.log('promise1'); })
- .then(() => { console.log('promise2'); }); 
+setTimeout(() => {
 
-setTimeout(() => {console.log(' inner setTimeout after promise');  }, 0);
- console.log('setTimeout'); 
+   setTimeout(() => {console.log(' inner setTimeout before promise');  }, 0);
+
+   Promise.resolve()
+   .then(() => { console.log('promise1'); })
+   .then(() => { console.log('promise2'); }); 
+
+   setTimeout(() => {console.log(' inner setTimeout after promise');  }, 0);
+
+   console.log('setTimeout'); 
 
 }, 0); 
 
