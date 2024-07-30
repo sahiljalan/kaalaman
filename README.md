@@ -260,6 +260,66 @@ It is created for blocks, functions, and the global scope, holding variable and 
 - **Execution Context**: This is the environment where JavaScript code is executed. It includes the global execution context, function execution contexts, and `eval` execution contexts¹².
 - **Lexical Environment**: This is a structure that holds identifier-variable mappings (i.e., where variables and functions are stored). Each execution context has a lexical environment associated with it.
 
+## Hoisting
+
+Hoisting in JavaScript refers to the behavior where variable and function declarations are moved to the top of their containing scope during the compilation phase. This means that you can use variables and functions before they are declared in the code.
+However, it’s important to note that only the declarations are hoisted, not the initializations.
+
+**NOTE:** The code itself is not physically moved. Instead, during the compilation phase, JavaScript processes the declarations first, which gives the illusion of "hoisting." Here's a more detailed breakdown of what happens:
+
+1. **Compilation Phase**:
+   - The JavaScript engine scans the code for variable and function declarations.
+   - It allocates memory for these declarations in the appropriate scope (global or function scope).
+   - For `var` declarations, the variable is initialized with `undefined`.
+   - For `let` and `const` declarations, the variables are hoisted but remain in a "temporal dead zone" (TDZ) until their actual declaration is encountered during execution.
+
+2. **Execution Phase**:
+   - The code is executed line by line.
+   - Variables declared with `var` are accessible but hold the value `undefined` until they are assigned a value.
+   - Variables declared with `let` and `const` cannot be accessed until the execution reaches their declaration, leading to a `ReferenceError` if accessed before initialization.
+
+Here's an example to illustrate this:
+
+```javascript
+console.log(x); // undefined
+var x = 5;
+console.log(x); // 5
+
+console.log(y); // ReferenceError: Cannot access 'y' before initialization
+let y = 10;
+console.log(y); // 10
+```
+
+In this example:
+- The declaration `var x` is hoisted, so `x` is accessible before its initialization, but it holds the value `undefined`.
+- The declaration `let y` is also hoisted, but it remains uninitialized until the line `let y = 10` is executed, causing a `ReferenceError` if accessed before this line.
+
+So, hoisting is more about how JavaScript handles declarations during the compilation phase rather than physically moving code around.
+
+## Do Hoisting starts after creating lexical env
+
+Yes, hoisting in JavaScript starts after the creation of the lexical environment. Here's a brief overview of how it works:
+
+1. **Creation Phase**: When a function is invoked or a script is executed, the JavaScript engine creates an execution context. During this phase, the lexical environment is established, which includes setting up the scope chain, creating the `this` binding, and allocating memory for variables and functions.
+
+2. **Hoisting**: After the lexical environment is created, hoisting occurs. This means that variable and function declarations are moved to the top of their containing scope. However, only the declarations are hoisted, not the initializations. For example, variables declared with `var` are hoisted and initialized with `undefined`, while variables declared with `let` and `const` are hoisted but remain uninitialized until their actual declaration is encountered in the code¹².
+
+3. **Execution Phase**: Finally, the code is executed line by line. At this point, the variables and functions are used as per their declarations and initializations.
+
+Here's a simple example to illustrate hoisting:
+
+```javascript
+console.log(x); // undefined
+var x = 5;
+console.log(x); // 5
+
+console.log(y); // ReferenceError: Cannot access 'y' before initialization
+let y = 10;
+console.log(y); // 10
+```
+
+In this example, the declaration of `x` is hoisted to the top, but its initialization (`x = 5`) is not. For `y`, the declaration is hoisted, but it remains uninitialized until the line `let y = 10` is executed, leading to a `ReferenceError` if accessed before initialization.
+
 ## Complete Detailed Example w.r.t. Execution Context, Lexical Environment and Temporal Dead Zone
 
 ### Example Code
