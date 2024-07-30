@@ -169,6 +169,200 @@ Let's clarify the concept of the global execution context (GEC) and its relation
 
 In summary, the GEC is created at the start of your program but is not pushed onto the call stack. It remains available throughout the program's execution.
 
+You're absolutely right! I misspoke in my previous explanation. Let's clarify this with the correct details.
+
+## Temporal Dead Zone
+
+Sure! Let's go through each example and confirm the comments regarding the Temporal Dead Zone (TDZ).
+
+### Example 1
+
+```javascript
+{
+  // car TDZ starts here (at the beginning of this block’s local scope)
+  // car TDZ continues here
+  // car TDZ continues here
+  // car TDZ continues here
+  console.log(car); // returns ReferenceError because car TDZ continues here
+  // car TDZ continues here
+  // car TDZ continues here
+  let car = "maruti"; // car TDZ ends here
+  // car TDZ does not exist here
+  // car TDZ does not exist here
+  // car TDZ does not exist here
+}
+```
+
+**Explanation**:
+- The TDZ for `car` starts at the beginning of the block.
+- `console.log(car)` throws a `ReferenceError` because `car` is in the TDZ.
+- The TDZ ends when `let car = "maruti";` is executed.
+- After the declaration, `car` is accessible and initialized to `"maruti"`.
+
+### Example 2
+
+```javascript
+{
+  //car4 TDZ starts here
+  //car4 TDZ continue here
+  let car4; //car4 TDZ ends here --
+  console.log(car4); //return undefined, TDZ does not exist here
+  car4 = "xyz"; // TDZ for car4 does not exist here
+  console.log(car4); //return xyz
+}
+```
+
+**Explanation**:
+- The TDZ for `car4` starts at the beginning of the block.
+- The TDZ ends when `let car4;` is executed, but `car4` is `undefined` at this point.
+- `console.log(car4)` returns `undefined` because `car4` is declared but not yet assigned a value.
+- After `car4 = "xyz";`, `car4` is assigned the value `"xyz"`.
+- `console.log(car4)` returns `"xyz"`.
+
+### Example 3
+
+```javascript
+{
+  // var variable TDZ ends Immediately after its Hoisting.
+  console.log(car); // returns undefined.
+  var car;
+}
+```
+
+**Explanation**:
+- Variables declared with `var` are hoisted to the top of their scope and initialized with `undefined`.
+- `console.log(car)` returns `undefined` because `car` is hoisted and initialized to `undefined`.
+- The TDZ concept does not apply to `var` variables in the same way it does to `let` and `const`.
+
+**Comments**: Correct, but note that `var` variables do not have a TDZ. They are hoisted and initialized to `undefined` immediately.
+
+### Example 4
+
+```javascript
+{
+  //car1 TDZ starts here
+  //car1 TDZ continue here
+  let car1 = "abc"; // car1 TDZ does not exist here
+  console.log(car1); //abc 
+}
+```
+
+**Explanation**:
+- The TDZ for `car1` starts at the beginning of the block.
+- The TDZ ends when `let car1 = "abc";` is executed.
+- `console.log(car1)` returns `"abc"` because `car1` is now declared and initialized.
+
+
+## Complete Detailed Example w.r.t. Execution Context, Lexical Environment and Temporal Dead Zone
+
+In your example, the `car` variable within the block is indeed in the temporal dead zone (TDZ) of the **function's lexical environment**, not the block's, because there is no `let car` declaration within the block itself. Here's the corrected step-by-step breakdown:
+
+### Example Code
+
+```javascript
+// Declare a variable:
+let car = "maruti";
+
+// Declare another variable:
+let myFavCar = function () {
+    {
+        console.log("Inside Block", car); // Uncaught ReferenceError: Cannot access 'car' before initialization
+        // let car = "honda";
+    }
+    console.log("Inside Function", car);
+    let car = "honda";
+};
+
+// Invoke myFavCar function:
+myFavCar();
+```
+
+### Step-by-Step Execution
+
+1. **Global Execution Context Creation**:
+   - **Global Lexical Environment** is created.
+   - `car` is declared and initialized to `"maruti"`.
+   - `myFavCar` is declared and assigned a function.
+
+2. **Calling `myFavCar()`**:
+   - A new **Function Execution Context** for `myFavCar` is created.
+   - **Function Lexical Environment** for `myFavCar` is created.
+   - `car` is declared but not initialized (temporal dead zone starts).
+
+3. **Entering the Block**:
+   - A new **Block Lexical Environment** is created for the block inside `myFavCar`.
+
+4. **Executing the Block**:
+   - `console.log("Inside Block", car)` tries to access `car` within the function's lexical environment.
+   - Since `car` is in the temporal dead zone within the function's lexical environment, it throws a `ReferenceError`.
+
+5. **Exiting the Block**:
+   - The block lexical environment is destroyed.
+
+6. **Continuing in the Function**:
+   - `console.log("Inside Function", car)` tries to access `car` within the function's lexical environment.
+   - Since `car` is still in the temporal dead zone, it throws a `ReferenceError`.
+
+7. **Initializing `car` in the Function**:
+   - `car` is initialized to `"honda"` within the function's lexical environment.
+
+### Visual Representation
+
+Here's a simplified visual representation of the execution stack and lexical environments:
+
+1. **Global Execution Context**:
+   - Lexical Environment: `{ car: "maruti", myFavCar: <function> }`
+
+2. **Function Execution Context (`myFavCar`)**:
+   - Lexical Environment: `{ car: <uninitialized> }`
+   - Parent Lexical Environment: Global Lexical Environment
+
+3. **Block Lexical Environment (inside `myFavCar`)**:
+   - Lexical Environment: `{ }`
+   - Parent Lexical Environment: Function Lexical Environment
+
+### Temporal Dead Zone
+
+The temporal dead zone (TDZ) is the period between the entering of the function and the actual declaration of `let` or `const` variables. During this time, accessing the variable will result in a `ReferenceError`.
+
+In the example:
+- The `car` variable within the function is in the TDZ until `let car = "honda";` is encountered.
+
+## Lexical Environment vs. Execution Context
+
+JavaScript primarily has three types of execution contexts: global, function, and `eval`. However, blocks (like those created with `if`, `for`, `while`, etc.) do not create new execution contexts. Instead, they create new **lexical environments**.
+
+- **Execution Context**: This is the environment where JavaScript code is executed. It includes the global execution context, function execution contexts, and `eval` execution contexts¹².
+- **Lexical Environment**: This is a structure that holds identifier-variable mappings (i.e., where variables and functions are stored). Each execution context has a lexical environment associated with it.
+
+### Block Scope and Hoisting
+
+When you use `let` or `const` within a block, they are hoisted to the top of that block's lexical environment, not the global or function execution context. This is why they are in a "temporal dead zone" until the declaration is encountered.
+
+Here's an example:
+
+```javascript
+{
+  console.log(a); // undefined (var is hoisted to the function/global scope)
+  console.log(b); // ReferenceError: Cannot access 'b' before initialization
+  var a = 1;
+  let b = 2;
+}
+```
+
+In this example:
+- `var a` is hoisted to the top of the function/global execution context.
+- `let b` is hoisted to the top of the block's lexical environment but not initialized until the declaration is encountered.
+
+### Summary
+
+- **Global Execution Context**: Created when the script starts executing.
+- **Function Execution Context**: Created when a function is invoked.
+- **Eval Execution Context**: Created when `eval` is executed.
+- **Lexical Environment**: Created for blocks, functions, and the global scope, holding variable and function declarations.
+
+Blocks do not create new execution contexts but do create new lexical environments, which is why `let` and `const` are block-scoped and hoisted within their block.
+
 ## Tasks vs Micro task Example
 
 Here's an example that demonstrates the difference between the task queue and the microtask queue using `Promise` and `setTimeout`:
