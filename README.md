@@ -173,7 +173,7 @@ You're absolutely right! I misspoke in my previous explanation. Let's clarify th
 
 ## Temporal Dead Zone
 
-Sure! Let's go through each example and confirm the comments regarding the Temporal Dead Zone (TDZ).
+The temporal dead zone (TDZ) is the period between the entering of the function/block and the actual declaration of `let` or `const` variables. During this time, accessing the variable will result in a `ReferenceError`. TDZ doesn't exist for var.
 
 ### Example 1
 
@@ -252,10 +252,15 @@ Sure! Let's go through each example and confirm the comments regarding the Tempo
 - The TDZ ends when `let car1 = "abc";` is executed.
 - `console.log(car1)` returns `"abc"` because `car1` is now declared and initialized.
 
+## Lexical Environment w.r.t. Execution Context
+
+JavaScript primarily has three types of execution contexts: global, function, and `eval`. However, blocks (like those created with `if`, `for`, `while`, etc.) do not create new execution contexts. Instead, they create new **lexical environments**.
+It is created for blocks, functions, and the global scope, holding variable and function declarations.
+
+- **Execution Context**: This is the environment where JavaScript code is executed. It includes the global execution context, function execution contexts, and `eval` execution contexts¹².
+- **Lexical Environment**: This is a structure that holds identifier-variable mappings (i.e., where variables and functions are stored). Each execution context has a lexical environment associated with it.
 
 ## Complete Detailed Example w.r.t. Execution Context, Lexical Environment and Temporal Dead Zone
-
-In your example, the `car` variable within the block is indeed in the temporal dead zone (TDZ) of the **function's lexical environment**, not the block's, because there is no `let car` declaration within the block itself. Here's the corrected step-by-step breakdown:
 
 ### Example Code
 
@@ -321,47 +326,8 @@ Here's a simplified visual representation of the execution stack and lexical env
    - Lexical Environment: `{ }`
    - Parent Lexical Environment: Function Lexical Environment
 
-### Temporal Dead Zone
-
-The temporal dead zone (TDZ) is the period between the entering of the function and the actual declaration of `let` or `const` variables. During this time, accessing the variable will result in a `ReferenceError`.
-
 In the example:
 - The `car` variable within the function is in the TDZ until `let car = "honda";` is encountered.
-
-## Lexical Environment vs. Execution Context
-
-JavaScript primarily has three types of execution contexts: global, function, and `eval`. However, blocks (like those created with `if`, `for`, `while`, etc.) do not create new execution contexts. Instead, they create new **lexical environments**.
-
-- **Execution Context**: This is the environment where JavaScript code is executed. It includes the global execution context, function execution contexts, and `eval` execution contexts¹².
-- **Lexical Environment**: This is a structure that holds identifier-variable mappings (i.e., where variables and functions are stored). Each execution context has a lexical environment associated with it.
-
-### Block Scope and Hoisting
-
-When you use `let` or `const` within a block, they are hoisted to the top of that block's lexical environment, not the global or function execution context. This is why they are in a "temporal dead zone" until the declaration is encountered.
-
-Here's an example:
-
-```javascript
-{
-  console.log(a); // undefined (var is hoisted to the function/global scope)
-  console.log(b); // ReferenceError: Cannot access 'b' before initialization
-  var a = 1;
-  let b = 2;
-}
-```
-
-In this example:
-- `var a` is hoisted to the top of the function/global execution context.
-- `let b` is hoisted to the top of the block's lexical environment but not initialized until the declaration is encountered.
-
-### Summary
-
-- **Global Execution Context**: Created when the script starts executing.
-- **Function Execution Context**: Created when a function is invoked.
-- **Eval Execution Context**: Created when `eval` is executed.
-- **Lexical Environment**: Created for blocks, functions, and the global scope, holding variable and function declarations.
-
-Blocks do not create new execution contexts but do create new lexical environments, which is why `let` and `const` are block-scoped and hoisted within their block.
 
 ## Tasks vs Micro task Example
 
